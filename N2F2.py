@@ -14,7 +14,7 @@ from PairTable import PairTable
 from Clock import Clock
 warnings.filterwarnings("ignore")
 
-torch.set_default_tensor_type(torch.DoubleTensor)
+torch.set_default_tensor_type(torch.FloatTensor)
 # torch.autograd.set_detect_anomaly(True)
 # grads = {}
 # def save_grad(name):
