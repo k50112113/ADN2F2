@@ -29,7 +29,7 @@ class N2F2:
         self.read_input_file()
 
         ###################################### Load basic information ######################################
-        print(self.settings_["mode"])
+        print("%s - single precision."%(self.settings_["mode"]))
         self.output_dir = self.settings_["output_dir"]
         self.output_log = self.settings_["output_log"]
         if os.path.isdir(self.output_dir) == False: os.mkdir(self.output_dir)
