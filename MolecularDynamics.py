@@ -8,7 +8,8 @@ from MinimumImage import minimum_image
 from Clock import Clock
 from AscentDynamics import AscentDynamics
 from NeuralNetworkForceFieldModel import NeuralNetworkForceFieldModelLoader
-torch.set_default_tensor_type(torch.DoubleTensor)
+
+torch.set_default_tensor_type(torch.FloatTensor)
 
 class MolecularDynamics:
     def __init__(self, device = None, unit = 'atomic'):

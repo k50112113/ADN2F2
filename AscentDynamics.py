@@ -2,7 +2,7 @@ import torch
 from Clock import Clock
 from MinimumImage import wrap
 
-torch.set_default_tensor_type(torch.DoubleTensor)
+torch.set_default_tensor_type(torch.FloatTensor)
 
 def read_ad_log(filename):
     data = []

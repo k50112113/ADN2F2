@@ -1,6 +1,8 @@
 import torch
 from PairTable import PairTable
 
+torch.set_default_tensor_type(torch.FloatTensor)
+
 torchpi = torch.zeros(1).acos() * 2
 
 class BPDescriptor:

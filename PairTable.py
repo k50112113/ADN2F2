@@ -3,6 +3,8 @@ from MinimumImage import minimum_image
 import warnings
 warnings.filterwarnings("ignore")
 
+torch.set_default_tensor_type(torch.FloatTensor)
+
 class PairTable:
     def __init__(self, localtype_to_globaltype_list, localtype_indices, number_of_globaltypes, dimensions=3):
         self.dimensions = dimensions
