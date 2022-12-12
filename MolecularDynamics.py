@@ -68,7 +68,7 @@ class MolecularDynamics:
             exit()
     
     def to_tensor(self, x):
-        if torch.is_tensor(x) == False: return torch.tensor(x)
+        if torch.is_tensor(x) == False: return torch.tensor(x, dtype = torch.float32)
         else: return x.clone().detach()
 
     def set_pair_table(self):
