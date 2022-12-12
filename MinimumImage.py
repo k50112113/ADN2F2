@@ -1,5 +1,7 @@
 import torch
 
+torch.set_default_tensor_type(torch.FloatTensor)
+
 def minimum_image(rij, lattice_vector, inverse_lattice_vector):
     #rij:                     (F*N*N*Dim) or (N*N*Dim) or (N*Dim)
     #lattice_vector:          (F*Dim*Dim) or (Dim*Dim) or (Dim*Dim)

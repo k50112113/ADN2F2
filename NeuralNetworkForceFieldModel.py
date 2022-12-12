@@ -4,6 +4,8 @@ import torch.nn as nn
 import dill
 from BPDescriptor import BPDescriptor, torchpi
 
+torch.set_default_tensor_type(torch.FloatTensor)
+
 class NeuralNetworkForceFieldModelLoader:
     def __init__(self, model_name, pair_table, device):
         try:

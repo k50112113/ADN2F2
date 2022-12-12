@@ -4,6 +4,8 @@ import pickle
 from BPDescriptor import BPDescriptor, torchpi
 from NeuralNetworkForceFieldModel import AtomicSubNetwork, NeuralNetworkForceFieldModel
 
+torch.set_default_tensor_type(torch.FloatTensor)
+
 class AtomicUncertaintySubNetwork(AtomicSubNetwork):
     def __init__(self, input_size = None, hidden_layer_size = None, globaltype = None, activation = 'silu'):
         super().__init__(input_size, hidden_layer_size, globaltype, activation_type)
