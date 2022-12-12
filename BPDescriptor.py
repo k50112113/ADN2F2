@@ -10,9 +10,7 @@ class BPDescriptor:
         Rs_radial = torch.linspace(0., Rc, steps=int(Rc/Rs_radial_step+1))[1:-1]
         Rs_angular = torch.linspace(0., Rc, steps=int(Rc/Rs_angular_step+1))[1:-1]
         As_angular = torch.linspace(0., torchpi.item(), steps=int(180/As_angular_step+1))[1:-1]
-        self.pi_ = torchpi
-        self.half_ = torch.tensor(0.5)
-        self.zero_ = torch.tensor(0.0)
+        self.pi = torchpi
         self.Rs_radial_step_ = Rs_radial_step
         self.Rs_angular_step_ = Rs_angular_step
         self.As_angular_step_ = As_angular_step
@@ -46,8 +44,7 @@ class BPDescriptor:
         self.As_angular_ = self.As_angular_.to(device) #Saa
         for i in range(len(self.zero_GR)): self.zero_GR[i] = self.zero_GR[i].to(device)
         for i in range(len(self.zero_GA)): self.zero_GA[i] = self.zero_GA[i].to(device)
-        self.pi_ = self.pi_.to(device)
-        self.zero_ = self.zero_.to(device)
+        self.pi = self.pi.to(device)
 
     def compute_descriptor(self, atom_position, lattice_vector, inverse_lattice_vector, pair_table):
         pair_displacement = pair_table.compute_pair_displacement(atom_position, lattice_vector, inverse_lattice_vector)
@@ -97,7 +94,7 @@ class BPDescriptor:
     def symmetry_function(self, Rij):
         #Rij:     (Ni*Nj)
         #return:  (Ni*Nj)
-        return torch.where((Rij-self.Rc_half_)**2 < (self.Rc_half_)**2, 0.5 * (self.pi_ * Rij * self.Rc_recp_).cos() + 0.5, self.zero_)
+        return torch.where((Rij-self.Rc_half_)**2 < (self.Rc_half_)**2, 0.5 * (self.pi * Rij * self.Rc_recp_).cos() + 0.5, 0.)
 
     def radial_descriptor(self, Rij, fcij):
         #Rij:     (Ni*Nj)
@@ -117,7 +114,7 @@ class BPDescriptor:
         fcijik_usq = fcijfcik.unsqueeze(-3).unsqueeze(-3) #(Ni*1*1*Nj*Nk)
         Rijk_usq = Rijk.unsqueeze(-3) #(Ni*1*Nj*Nk)
         Rs_angular_usq = self.Rs_angular_.unsqueeze(-1).unsqueeze(-1) #(Sar*1*1)
-        radial_component = (-self.eta_ * (0.5 * Rijk_usq - Rs_angular_usq)**2).exp() #(Ni*Sar*Nj*Nk)
+        radial_component = (-self.eta_ * (Rijk_usq/2. - Rs_angular_usq)**2).exp() #(Ni*Sar*Nj*Nk)
         
         Aijk_usq = Aijk.unsqueeze(-3) #(Ni*1*Nj*Nk)
         As_angular_usq = self.As_angular_.unsqueeze(-1).unsqueeze(-1) #(Saa*1*1)
@@ -125,7 +122,7 @@ class BPDescriptor:
 
         radial_component = radial_component.unsqueeze(-4)   #(Ni*1*Sar*Nj*Nk)
         angular_component = angular_component.unsqueeze(-3) #(Ni*Saa*1*Nj*Nk)
-        return 2.0**(1.0 - self.zeta_) * (radial_component*angular_component*fcijik_usq).sum(dim=(-2, -1)) #(Ni*Saa*Sar)
+        return 2.0**(1.0-self.zeta_) * (radial_component*angular_component*fcijik_usq).sum(dim=(-2, -1)) #(Ni*Saa*Sar)
     
     def get_descriptor_dimensions(self):
         return self.descriptor_dimensions 
@@ -141,4 +138,4 @@ class BPDescriptor:
         print("")
         print("\t\tRs_r\t%d\t%s"%(self.Rs_radial_.shape[0], self.Rs_radial_.cpu().detach().numpy()))
         print("\t\tRs_a\t%d\t%s"%(self.Rs_angular_.shape[0], self.Rs_angular_.cpu().detach().numpy()))
-        print("\t\tTh_a\t%d\t%s"%(self.As_angular_.shape[0], (self.As_angular_*180/self.pi_).cpu().detach().numpy()))   
+        print("\t\tTh_a\t%d\t%s"%(self.As_angular_.shape[0], (self.As_angular_*180/self.pi).cpu().detach().numpy()))   

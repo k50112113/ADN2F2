@@ -1,7 +1,5 @@
 import torch 
 
-torch.set_default_tensor_type(torch.FloatTensor)
-
 class TrajectoryDataset(torch.utils.data.Dataset):
   def __init__(self, atom_position, lattice_vector, inverse_lattice_vector, energy, atom_force, device = 'cpu'):
         self.atom_position_ = atom_position.to(device)

@@ -79,10 +79,8 @@ class MolecularDynamics:
     def set_forcefield(self, model_name = 'lj', Rc = 2.0, epsilon = [1.0], sigma = [1.0], set_index = 0, return_forcefield = False):
         if model_name == 'lj':
             this_forcefield = ClassicalForceField(self.number_of_types_, self.pair_table_, Rc = Rc, epsilon = epsilon, sigma = sigma)
-            this_forcefield.to(self.device)
         elif model_name == 'lj-kob':
             this_forcefield = ClassicalForceField(self.number_of_types_, self.pair_table_, Rc = 2.5*0.8, pair_epsilon = [1.0, 1.5, 0.5], pair_sigma = [1.0, 0.8, 0.88])
-            this_forcefield.to(self.device)
         elif model_name[-5:] == ".nnff":
             this_forcefield = NeuralNetworkForceFieldModelLoader(model_name, self.pair_table_, self.device).get_model()
         
@@ -93,7 +91,6 @@ class MolecularDynamics:
 
     def add_pure_repulsion_forcefield(self, Rc = 2.0, epsilon = [1.0], sigma = [1.0]):
         self.pure_repulsion_forcefield = ClassicalForceField(self.number_of_types_, self.pair_table_, Rc = Rc, epsilon = epsilon, sigma = sigma, r6_attraction = False)
-        self.pure_repulsion_forcefield.to(self.device)
 
     def potential(self):
         return self.forcefield.evaluate_energy(self.atom_position_, self.lattice_vector_, self.inverse_lattice_vector_, self.pair_table_)

@@ -2,7 +2,7 @@ import torch
 from MinimumImage import minimum_image, scale_position
 from Clock import Clock
 
-torch.set_default_tensor_type(torch.FloatTensor)
+torch.set_default_tensor_type(torch.DoubleTensor)
 
 class ClassicalForceField:
     def __init__(self, number_of_types, pair_table,\
@@ -11,7 +11,6 @@ class ClassicalForceField:
         self.type_index_pair_list_ = pair_table.localtype_pair_list_
         self.number_of_type_pairs_ = pair_table.number_of_localtype_pairs_
         self.Rc_ = Rc
-        self.zero_ = torch.tensor(0.0)
         self.unit = 0 if unit == 'real' else 1
         if pair_epsilon:
             self.pair_epsilon_ = pair_epsilon
@@ -44,9 +43,6 @@ class ClassicalForceField:
         else:
             print("No classical term is selected")
             exit()
-
-    def to(self, device):
-        self.zero_ = self.zero_.to(device)
 
     def evaluate_energy(self, atom_position, lattice_vector, inverse_lattice_vector, pair_table):
         # atom_position: (N*Dim)
@@ -102,11 +98,11 @@ class ClassicalForceField:
         return total_pressure, total_virial, total_force, total_energy 
 
     def lj_12_6(self,pair_distance, epsilon, sigma):
-        return torch.where((pair_distance-self.Rc_/2.)**2 < (self.Rc_/2.)**2, 4*epsilon * ( (sigma/pair_distance)**(12) - (sigma/pair_distance)**(6) ), self.zero_)#.nan_to_num(nan=0.0)
+        return torch.where((pair_distance-self.Rc_/2.)**2 < (self.Rc_/2.)**2, 4*epsilon * ( (sigma/pair_distance)**(12) - (sigma/pair_distance)**(6) ), 0.)#.nan_to_num(nan=0.0)
     
     def lj_12(self,pair_distance, epsilon, sigma):
-        return torch.where((pair_distance-self.Rc_/2.)**2 < (self.Rc_/2.)**2, 4*epsilon * ( (sigma/pair_distance)**(12) ), self.zero_)#.nan_to_num(nan=0.0)
+        return torch.where((pair_distance-self.Rc_/2.)**2 < (self.Rc_/2.)**2, 4*epsilon * ( (sigma/pair_distance)**(12) ), 0.)#.nan_to_num(nan=0.0)
     
     def lj_6(self,pair_distance, epsilon, sigma):
-        return torch.where((pair_distance-self.Rc_/2.)**2 < (self.Rc_/2.)**2, 4*epsilon * ( - (sigma/pair_distance)**(6) ), self.zero_)#.nan_to_num(nan=0.0)
+        return torch.where((pair_distance-self.Rc_/2.)**2 < (self.Rc_/2.)**2, 4*epsilon * ( - (sigma/pair_distance)**(6) ), 0.)#.nan_to_num(nan=0.0)
     

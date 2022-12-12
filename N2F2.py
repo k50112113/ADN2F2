@@ -14,7 +14,7 @@ from PairTable import PairTable
 from Clock import Clock
 warnings.filterwarnings("ignore")
 
-torch.set_default_tensor_type(torch.FloatTensor)
+torch.set_default_tensor_type(torch.DoubleTensor)
 # torch.autograd.set_detect_anomaly(True)
 # grads = {}
 # def save_grad(name):
@@ -29,7 +29,7 @@ class N2F2:
         self.read_input_file()
 
         ###################################### Load basic information ######################################
-        print("%s - single precision."%(self.settings_["mode"]))
+        print(self.settings_["mode"])
         self.output_dir = self.settings_["output_dir"]
         self.output_log = self.settings_["output_log"]
         if os.path.isdir(self.output_dir) == False: os.mkdir(self.output_dir)
