@@ -24,9 +24,11 @@ torch.set_default_tensor_type(torch.FloatTensor)
 # atomic_energy.register_hook(save_grad('atomic_%s'%(j_type)))
 
 class N2F2:
-    def __init__(self, input_filename):
+    def __init__(self, input_filename, settings_argv = {}):
         self.input_filename = input_filename
         self.read_input_file()
+        for a_key in settings_argv.keys():
+            self.settings_[a_key] = settings_argv[a_key]
 
         ###################################### Load basic information ######################################
         print("%s - single precision."%(self.settings_["mode"]))
@@ -417,6 +419,45 @@ class N2F2:
         self.export_model(training_index)
         sys.stdout = self.original_stdout
     
+    def compute_model_force_energy(self, force_filename, energy_filename, data_type = 'test'):
+        sys.stdout = self.logfile
+        
+        foutf = open(self.output_dir+"/%s"%(force_filename),"w")
+        foute = open(self.output_dir+"/%s"%(energy_filename),"w")
+        training_index = 0
+        if data_type == 'test':
+            print("Computing model force and energy for testing data...")
+            data_loader = self.test_loader[training_index]
+        elif data_type == 'train':
+            print("Computing model force and energy for training data...")
+            data_loader = self.train_loader[training_index]
+        else:
+            print("No data type specified.")
+            return 0
+        self.timer.get_dt()
+        for atom_position, lattice_vector, inverse_lattice_vector, label_energy, label_force in data_loader:
+            # atom_position = atom_position.to(self.device)
+            # lattice_vector = lattice_vector.to(self.device)
+            # inverse_lattice_vector = inverse_lattice_vector.to(self.device)
+            # label_energy = energy.to(self.device)
+            # label_force = atom_force.to(self.device)
+            batch_size = len(atom_position)
+            for n_frame in range(batch_size):
+                model_force_n, model_energy_n = self.nnff_model_list_[training_index].evaluate_force(atom_position[n_frame], lattice_vector[n_frame], inverse_lattice_vector[n_frame], self.pair_table_list_[training_index])
+                model_force_n = model_force_n.detach().cpu().numpy()
+                label_force_n = label_force[n_frame].detach().cpu().numpy()
+                for i in range(model_force_n.shape[0]):
+                    foutf.write("%.3e %.3e %.3e %.3e %.3e %.3e\n"%(label_force_n[i][0],label_force_n[i][1],label_force_n[i][2],\
+                                                                   model_force_n[i][0],model_force_n[i][1],model_force_n[i][2]))
+                label_energy_n = label_energy[n_frame].detach().cpu().numpy()
+                model_energy_n = model_energy_n.detach().cpu().numpy()
+                foute.write("%.10e %.10e\n"%(label_energy_n, model_energy_n))
+        foute.close()
+        foutf.close()
+        print("Done, time = %s"%(self.timer.get_dt()))
+
+        sys.stdout = self.original_stdout
+
     def save_bpdescriptor(self):
         print("Saving BPDescriptor...")
         fout = open(self.output_dir+"/bp_descriptor.save","wb")
